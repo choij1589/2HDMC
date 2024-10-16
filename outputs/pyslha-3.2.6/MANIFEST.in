@@ -1,0 +1,3 @@
+include ChangeLog
+include spcfiles/sps1a.spc
+include spcfiles/tgm.spc
