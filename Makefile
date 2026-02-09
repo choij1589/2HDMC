@@ -15,13 +15,14 @@ CFLAGS= -std=c++11 -Wall -fopenmp $(DEBUG) $(OPT)
 
 OBJDIR=lib
 LIBDIR=$(OBJDIR)
+BINDIR=bin
 SOURCES=THDM.cpp SM.cpp DecayTable.cpp Constraints.cpp Util.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 LIB=lib2HDMC.a
 LDFLAGS+=-L$(LIBDIR) -l2HDMC -lgsl -lgslcblas -lm
 #LDFLAGS+=-L$(LIBDIR) -l2HDMC
 LIBS=
-PROG=CalcPhys CalcGen CalcHiggs CalcHybrid CalcHMSSM CalcMSSM CalcInert CalcLH Demo Production
+PROG=$(addprefix $(BINDIR)/, CalcPhys CalcGen CalcHiggs CalcHybrid CalcHMSSM CalcMSSM CalcInert CalcLH Demo ScanBR)
 INCLUDE=
 
 # To use HiggsBounds/HiggsSignals for Higgs constraints, set both of the
@@ -44,7 +45,7 @@ endif
 #LDFLAGS+=-L$(LIBDIR) -lHS -lHB -lgfortran
 #SOURCES+=HBHS.cpp
 
-.PHONY: lib clean distclean
+.PHONY: lib clean distclean ScanBR CalcPhys CalcGen CalcHiggs CalcHybrid CalcHMSSM CalcMSSM CalcInert CalcLH Demo
 
 all: lib $(PROG)
 
@@ -57,9 +58,15 @@ $(addprefix $(LIBDIR)/, $(LIB)): $(addprefix $(OBJDIR)/, $(OBJECTS))
 	@ echo "Making library $@"
 	@ ar rcs $@ $(addprefix $(OBJDIR)/, $(OBJECTS))
 
-%: %.cpp $(addprefix $(LIBDIR)/, $(LIB))
+$(BINDIR)/%: src/%.cpp $(addprefix $(LIBDIR)/, $(LIB)) | $(BINDIR)
 	@ echo $(CC) $< -Isrc $(CFLAGS) $(LDFLAGS) $(addprefix $(LIBDIR)/, $(LIBS)) -o $@
 	@ $(CC) $< -Isrc $(CFLAGS) $(LDFLAGS) $(addprefix $(LIBDIR)/, $(LIBS)) -o $@
+
+$(BINDIR):
+	@ mkdir -p $(BINDIR)
+
+# Convenience: allow "make ScanBR" etc. without bin/ prefix
+ScanBR CalcPhys CalcGen CalcHiggs CalcHybrid CalcHMSSM CalcMSSM CalcInert CalcLH Demo: %: $(BINDIR)/%
 
 clean:
 	@ echo "Cleaning library"
@@ -70,3 +77,4 @@ distclean:
 	@ make -s clean
 	@ echo "Cleaning programs"
 	@ rm -f $(PROG)
+	@ rm -rf $(BINDIR)
