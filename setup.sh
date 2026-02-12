@@ -1,3 +1,5 @@
 #!/bin/bash
-source ~/.conda-activate
-conda activate pyg
+export PATH=$HOME/micromamba/bin:$PATH
+export MAMBA_ROOT_PREFIX=$HOME/micromamba
+eval "$(micromamba shell hook -s zsh)"
+micromamba activate Nano
